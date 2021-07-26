@@ -45,6 +45,10 @@ namespace LibgenDesktop.Setup
             AddFile(@"Mirrors\libgen_lc_fiction.xslt");
             AddFile(@"Mirrors\libgen_lc_nonfiction.xslt");
             AddFile(@"Mirrors\libgen_lc_scimag.xslt");
+            AddFile(@"Mirrors\library_lol_nonfiction.xslt");
+            AddFile(@"Mirrors\library_lol_cloudflare_nonfiction.xslt");
+            AddFile(@"Mirrors\library_lol_ipfs_io_nonfiction.xslt");
+            AddFile(@"Mirrors\library_lol_infura_nonfiction.xslt");
             AddFile(@"Mirrors\mirrors.config");
             AddFile(@"Mirrors\sci-hub.xslt");
         }
