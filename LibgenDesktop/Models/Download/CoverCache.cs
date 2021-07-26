@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using LibgenDesktop.Common;
@@ -55,7 +56,7 @@ namespace LibgenDesktop.Models.Download
             }
         }
 
-        public async Task<byte[]> GetCoverAsync(string md5, string coverUrl)
+        public async Task<byte[]> GetCoverAsync(string md5, Uri coverUrl)
         {
             md5 = md5.ToUpperInvariant();
             Logger.Debug($"Retrieving cover: MD5 = {md5}, cache only = false, cover URL = {coverUrl}");
@@ -109,7 +110,7 @@ namespace LibgenDesktop.Models.Download
             }
         }
 
-        private Task<byte[]> LoadCoverAsync(string coverUrl)
+        private Task<byte[]> LoadCoverAsync(Uri coverUrl)
         {
             return httpClient.GetByteArrayAsync(coverUrl);
         }

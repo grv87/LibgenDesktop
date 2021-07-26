@@ -1,4 +1,5 @@
-﻿using LibgenDesktop.Infrastructure;
+﻿using System;
+using LibgenDesktop.Infrastructure;
 using LibgenDesktop.Models;
 using LibgenDesktop.Models.Entities;
 using LibgenDesktop.Models.Localization;
@@ -50,12 +51,12 @@ namespace LibgenDesktop.ViewModels.Tabs
         protected override string Md5Hash => DetailsItem.Md5Hash;
         protected override bool HasCover => false;
 
-        protected override string GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration)
+        protected override Uri GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration)
         {
             return UrlGenerator.GetSciMagDownloadUrl(mirrorConfiguration, DetailsItem.Article);
         }
 
-        protected override string GenerateCoverUrl(Mirrors.MirrorConfiguration mirrorConfiguration)
+        protected override Uri GenerateCoverUrl(Mirrors.MirrorConfiguration mirrorConfiguration)
         {
             return null;
         }

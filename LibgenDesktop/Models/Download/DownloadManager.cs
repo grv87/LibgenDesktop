@@ -85,7 +85,7 @@ namespace LibgenDesktop.Models.Download
             }
         }
 
-        public DownloadItem GetDownloadItemByDownloadPageUrl(string downloadPageUrl)
+        public DownloadItem GetDownloadItemByDownloadPageUrl(Uri downloadPageUrl)
         {
             lock (downloadQueueLock)
             {
@@ -300,17 +300,17 @@ namespace LibgenDesktop.Models.Download
             return (int)statusCode >= 300 && (int)statusCode <= 399;
         }
 
-        private static bool GenerateRedirectUrl(string requestUrl, Uri newLocationUri, out string redirectUrl)
+        private static bool GenerateRedirectUrl(Uri requestUrl, Uri newLocationUri, out Uri redirectUrl)
         {
             if (newLocationUri.IsAbsoluteUri)
             {
-                redirectUrl = EncodeInvalidUrlCharacters(newLocationUri.ToString());
+                redirectUrl = newLocationUri;
+                return true;
             }
             else
             {
-                redirectUrl = EncodeInvalidUrlCharacters(new Uri(new Uri(requestUrl), newLocationUri).ToString());
+                return Uri.TryCreate(requestUrl, newLocationUri, out redirectUrl);
             }
-            return Uri.IsWellFormedUriString(redirectUrl, UriKind.Absolute);
         }
 
         private static void AppendCookies(Dictionary<string, string> existingCookies, Uri uri, string cookieHeader)
@@ -389,12 +389,6 @@ namespace LibgenDesktop.Models.Download
             return mainFileName;
         }
 
-        private static string EncodeInvalidUrlCharacters(string url)
-        {
-            return url.Replace(" ", "%20").Replace("^", "%5E").Replace("`", "%60").Replace("<", "%3C").Replace(">", "%3E").
-                Replace("[", "%5B").Replace("]", "%5D").Replace("{", "%7B").Replace("}", "%7D").Replace("|", "%7C");
-        }
-
         private void ResumeDownloadTask()
         {
             downloadTaskResetEvent.Set();
@@ -443,8 +437,8 @@ namespace LibgenDesktop.Models.Download
                         {
                             if (!downloadItem.FileCreated || downloadItem.RestartSessionOnTimeout)
                             {
-                                string url = downloadItem.DownloadPageUrl;
-                                string referer = null;
+                                Uri url = downloadItem.DownloadPageUrl;
+                                Uri referer = null;
                                 if (!String.IsNullOrWhiteSpace(downloadItem.DownloadTransformations))
                                 {
                                     foreach (string transformationName in downloadItem.DownloadTransformations.Split(',').
@@ -468,10 +462,11 @@ namespace LibgenDesktop.Models.Download
                                         {
                                             break;
                                         }
+                                        string transformationResult;
                                         try
                                         {
                                             referer = url;
-                                            url = DownloadUtils.ExecuteTransformation(pageContent, transformationName, htmlDecode: true);
+                                            transformationResult = DownloadUtils.ExecuteTransformation(pageContent, transformationName, htmlDecode: true);
                                         }
                                         catch (Exception exception)
                                         {
@@ -480,23 +475,14 @@ namespace LibgenDesktop.Models.Download
                                             ReportError(downloadItem, localization.GetLogLineTransformationError(transformationName));
                                             break;
                                         }
-                                        bool isUrlValid;
-                                        if (String.IsNullOrWhiteSpace(url))
+                                        try
                                         {
-                                            isUrlValid = false;
+                                            url = new Uri(transformationResult);
                                         }
-                                        else if (!url.ToLower().StartsWith("http://") && !url.ToLower().StartsWith("https://"))
+                                        catch (UriFormatException exception)
                                         {
-                                            isUrlValid = false;
-                                        }
-                                        else
-                                        {
-                                            url = EncodeInvalidUrlCharacters(url);
-                                            isUrlValid = Uri.IsWellFormedUriString(url, UriKind.Absolute);
-                                        }
-                                        if (!isUrlValid)
-                                        {
-                                            Logger.Debug($"Transformation {transformationName} failed, returned string:", url);
+                                            Logger.Debug($"Transformation {transformationName} failed, returned string:", transformationResult);
+                                            Logger.Exception(exception);
                                             Logger.Debug("Page:", pageContent);
                                             ReportError(downloadItem, localization.GetLogLineTransformationReturnedIncorrectUrl(transformationName));
                                             break;
@@ -601,9 +587,9 @@ namespace LibgenDesktop.Models.Download
             });
         }
 
-        private async Task<string> DownloadPageAsync(DownloadItem downloadItem, string url, string referer)
+        private async Task<string> DownloadPageAsync(DownloadItem downloadItem, Uri url, Uri referer)
         {
-            ReportLogLine(downloadItem, DownloadItemLogLineType.INFORMATIONAL, localization.GetLogLineDownloadingPage(Uri.UnescapeDataString(url)));
+            ReportLogLine(downloadItem, DownloadItemLogLineType.INFORMATIONAL, localization.GetLogLineDownloadingPage(url));
             bool isRedirect;
             int redirectCount = 0;
             HttpResponseMessage response;
@@ -617,15 +603,15 @@ namespace LibgenDesktop.Models.Download
                 isRedirect = IsRedirect(response.StatusCode);
                 if (isRedirect)
                 {
-                    if (!GenerateRedirectUrl(url, response.Headers.Location, out string redirectUrl))
+                    if (!GenerateRedirectUrl(url, response.Headers.Location, out Uri redirectUrl))
                     {
-                        ReportError(downloadItem, localization.GetLogLineIncorrectRedirectUrl(Uri.UnescapeDataString(response.Headers.Location.ToString())));
+                        ReportError(downloadItem, localization.GetLogLineIncorrectRedirectUrl(response.Headers.Location));
                         return null;
                     }
                     else
                     {
                         url = redirectUrl;
-                        ReportLogLine(downloadItem, DownloadItemLogLineType.INFORMATIONAL, localization.GetLogLineRedirect(Uri.UnescapeDataString(url)));
+                        ReportLogLine(downloadItem, DownloadItemLogLineType.INFORMATIONAL, localization.GetLogLineRedirect(url));
                         redirectCount++;
                         if (redirectCount == MAX_DOWNLOAD_REDIRECT_COUNT)
                         {
@@ -660,7 +646,7 @@ namespace LibgenDesktop.Models.Download
             try
             {
                 ReportLogLine(downloadItem, DownloadItemLogLineType.INFORMATIONAL,
-                    localization.GetLogLineDownloadingFile(Uri.UnescapeDataString(downloadItem.DirectFileUrl)));
+                    localization.GetLogLineDownloadingFile(downloadItem.DirectFileUrl));
                 if (!Directory.Exists(downloadItem.DownloadDirectory))
                 {
                     try
@@ -752,8 +738,8 @@ namespace LibgenDesktop.Models.Download
 
         private async Task DownloadFileAsync(DownloadItem downloadItem, FileStream destinationFileStream)
         {
-            string url = downloadItem.DirectFileUrl;
-            string referer = downloadItem.Referer;
+            Uri url = downloadItem.DirectFileUrl;
+            Uri referer = downloadItem.Referer;
             long startPosition = destinationFileStream.Position;
             bool partialDownload = startPosition > 0;
             bool isRedirect;
@@ -772,12 +758,12 @@ namespace LibgenDesktop.Models.Download
                     referer = url;
                     if (!GenerateRedirectUrl(referer, response.Headers.Location, out url))
                     {
-                        ReportError(downloadItem, localization.GetLogLineIncorrectRedirectUrl(Uri.UnescapeDataString(response.Headers.Location.ToString())));
+                        ReportError(downloadItem, localization.GetLogLineIncorrectRedirectUrl(response.Headers.Location));
                         return;
                     }
                     else
                     {
-                        ReportLogLine(downloadItem, DownloadItemLogLineType.INFORMATIONAL, localization.GetLogLineRedirect(Uri.UnescapeDataString(url)));
+                        ReportLogLine(downloadItem, DownloadItemLogLineType.INFORMATIONAL, localization.GetLogLineRedirect(url));
                         redirectCount++;
                         if (redirectCount == MAX_DOWNLOAD_REDIRECT_COUNT)
                         {
@@ -956,7 +942,7 @@ namespace LibgenDesktop.Models.Download
             }
         }
 
-        private async Task<HttpResponseMessage> SendDownloadRequestAsync(DownloadItem downloadItem, string url, string referer, bool waitForFullContent,
+        private async Task<HttpResponseMessage> SendDownloadRequestAsync(DownloadItem downloadItem, Uri url, Uri referer, bool waitForFullContent,
             long? startPosition = null)
         {
             bool partialDownload = startPosition.HasValue && startPosition.Value > 0;
@@ -976,7 +962,7 @@ namespace LibgenDesktop.Models.Download
             catch (Exception exception)
             {
                 Logger.Exception(exception);
-                ReportError(downloadItem, localization.GetLogLineRequestError(Uri.UnescapeDataString(url)));
+                ReportError(downloadItem, localization.GetLogLineRequestError(url));
                 return null;
             }
             request.Headers.UserAgent.ParseAdd(USER_AGENT);
@@ -988,9 +974,9 @@ namespace LibgenDesktop.Models.Download
             {
                 request.Headers.Range = new RangeHeaderValue(startPosition.Value, null);
             }
-            if (!String.IsNullOrEmpty(referer))
+            if (referer != null)
             {
-                request.Headers.Referrer = new Uri(referer);
+                request.Headers.Referrer = referer;
             }
             string requestHeaders = request.Headers.ToString().TrimEnd();
             Logger.Debug("Request headers:", requestHeaders);
@@ -998,7 +984,7 @@ namespace LibgenDesktop.Models.Download
             requestLogBuilder.Append(localization.LogLineRequest);
             requestLogBuilder.AppendLine(":");
             requestLogBuilder.Append("GET ");
-            requestLogBuilder.AppendLine(url);
+            requestLogBuilder.AppendLine(url.ToString());
             requestLogBuilder.AppendLine(requestHeaders);
             ReportLogLine(downloadItem, DownloadItemLogLineType.DEBUG, requestLogBuilder.ToString().TrimEnd());
             HttpResponseMessage response;
@@ -1053,10 +1039,9 @@ namespace LibgenDesktop.Models.Download
             ReportLogLine(downloadItem, DownloadItemLogLineType.DEBUG, responseLogBuilder.ToString().TrimEnd());
             if (response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> cookieHeaders))
             {
-                Uri uri = new Uri(url);
                 foreach (string cookieHeader in cookieHeaders)
                 {
-                    AppendCookies(downloadItem.Cookies, uri, cookieHeader);
+                    AppendCookies(downloadItem.Cookies, url, cookieHeader);
                 }
             }
             return response;

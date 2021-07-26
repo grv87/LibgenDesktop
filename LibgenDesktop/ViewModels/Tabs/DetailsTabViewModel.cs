@@ -73,7 +73,7 @@ namespace LibgenDesktop.ViewModels.Tabs
         private bool coverVisible;
         private BitmapImage cover;
         private MainActionButtonMode mainActionButtonMode;
-        private string downloadUrl;
+        private Uri downloadUrl;
         private Guid? downloadId;
         private string localFilePath;
 
@@ -215,8 +215,8 @@ namespace LibgenDesktop.ViewModels.Tabs
             MainModel.Localization.LanguageChanged -= LocalizationLanguageChanged;
         }
 
-        protected abstract string GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration);
-        protected abstract string GenerateCoverUrl(Mirrors.MirrorConfiguration mirrorConfiguration);
+        protected abstract Uri GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration);
+        protected abstract Uri GenerateCoverUrl(Mirrors.MirrorConfiguration mirrorConfiguration);
         protected abstract string GetDownloadTransformations(Mirrors.MirrorConfiguration mirrorConfiguration);
         protected abstract void UpdateLocalization(Language newLanguage);
 
@@ -327,7 +327,7 @@ namespace LibgenDesktop.ViewModels.Tabs
                     }
                     else
                     {
-                        string coverUrl = GenerateCoverUrl(MainModel.Mirrors[coverMirrorName]);
+                        Uri coverUrl = GenerateCoverUrl(MainModel.Mirrors[coverMirrorName]);
                         coverNotificationOption = CoverNotificationOption.COVER_IS_LOADING;
                         UpdateCoverNotification();
                         IsCoverNotificationVisible = true;
@@ -386,7 +386,7 @@ namespace LibgenDesktop.ViewModels.Tabs
                     }
                     else
                     {
-                        Process.Start(downloadUrl);
+                        Process.Start(downloadUrl.ToString());
                     }
                     break;
                 case MainActionButtonMode.SELECT_DOWNLOAD:

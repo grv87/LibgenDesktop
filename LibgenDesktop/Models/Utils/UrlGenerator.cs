@@ -135,29 +135,29 @@ namespace LibgenDesktop.Models.Utils
             };
         }
 
-        public static string GetNonFictionDownloadUrl(Mirrors.MirrorConfiguration mirror, NonFictionBook book)
+        public static Uri GetNonFictionDownloadUrl(Mirrors.MirrorConfiguration mirror, NonFictionBook book)
         {
-            return Replace(mirror.NonFictionDownloadUrl, nonFictionTransformations, book);
+            return new Uri(Replace(mirror.NonFictionDownloadUrl, nonFictionTransformations, book));
         }
 
-        public static string GetNonFictionCoverUrl(Mirrors.MirrorConfiguration mirror, NonFictionBook book)
+        public static Uri GetNonFictionCoverUrl(Mirrors.MirrorConfiguration mirror, NonFictionBook book)
         {
-            return Replace(mirror.NonFictionCoverUrl, nonFictionTransformations, book);
+            return new Uri(Replace(mirror.NonFictionCoverUrl, nonFictionTransformations, book));
         }
 
-        public static string GetFictionDownloadUrl(Mirrors.MirrorConfiguration mirror, FictionBook book)
+        public static Uri GetFictionDownloadUrl(Mirrors.MirrorConfiguration mirror, FictionBook book)
         {
-            return Replace(mirror.FictionDownloadUrl, fictionTransformations, book);
+            return new Uri(Replace(mirror.FictionDownloadUrl, fictionTransformations, book));
         }
 
-        public static string GetFictionCoverUrl(Mirrors.MirrorConfiguration mirror, FictionBook book)
+        public static Uri GetFictionCoverUrl(Mirrors.MirrorConfiguration mirror, FictionBook book)
         {
-            return Replace(mirror.FictionCoverUrl, fictionTransformations, book);
+            return new Uri(Replace(mirror.FictionCoverUrl, fictionTransformations, book));
         }
 
-        public static string GetSciMagDownloadUrl(Mirrors.MirrorConfiguration mirror, SciMagArticle article)
+        public static Uri GetSciMagDownloadUrl(Mirrors.MirrorConfiguration mirror, SciMagArticle article)
         {
-            return Replace(mirror.SciMagDownloadUrl, sciMagTransformations, article);
+            return new Uri(Replace(mirror.SciMagDownloadUrl, sciMagTransformations, article));
         }
 
         private static string Replace<T>(string template, Dictionary<string, Func<T, string>> transformations, T objectValues)

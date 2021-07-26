@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace LibgenDesktop.Models.Localization.Localizators.Tabs
 {
@@ -99,9 +100,9 @@ namespace LibgenDesktop.Models.Localization.Localizators.Tabs
             Format(section => section?.LogMessages?.Attempt,
                 new { current = Formatter.ToFormattedString(current), total = Formatter.ToFormattedString(total) });
 
-        public string GetLogLineDownloadingPage(string url) => Format(section => section?.LogMessages?.DownloadingPage, new { url });
+        public string GetLogLineDownloadingPage(Uri url) => Format(section => section?.LogMessages?.DownloadingPage, new { url });
 
-        public string GetLogLineDownloadingFile(string url) => Format(section => section?.LogMessages?.DownloadingFile, new { url });
+        public string GetLogLineDownloadingFile(Uri url) => Format(section => section?.LogMessages?.DownloadingFile, new { url });
 
         public string GetLogLineStartingFileDownloadKnownFileSize(long size) =>
             Format(section => section?.LogMessages?.StartingFileDownloadKnownFileSize, new { size = Formatter.ToFormattedString(size) });
@@ -109,7 +110,7 @@ namespace LibgenDesktop.Models.Localization.Localizators.Tabs
         public string GetLogLineResumingFileDownloadKnownFileSize(long remaining) =>
             Format(section => section?.LogMessages?.ResumingFileDownloadKnownFileSize, new { remaining = Formatter.ToFormattedString(remaining) });
 
-        public string GetLogLineRedirect(string url) => Format(section => section?.LogMessages?.Redirect, new { url });
+        public string GetLogLineRedirect(Uri url) => Format(section => section?.LogMessages?.Redirect, new { url });
 
         public string GetLogLineNonSuccessfulStatusCode(string status) =>
             Format(section => section?.LogMessages?.NonSuccessfulStatusCode, new { status });
@@ -123,9 +124,9 @@ namespace LibgenDesktop.Models.Localization.Localizators.Tabs
         public string GetLogLineCannotRenamePartFile(string source, string destination) =>
             Format(section => section?.LogMessages?.CannotRenamePartFile, new { source, destination });
 
-        public string GetLogLineRequestError(string url) => Format(section => section?.LogMessages?.LogLineRequestError, new { url });
+        public string GetLogLineRequestError(Uri url) => Format(section => section?.LogMessages?.LogLineRequestError, new { url });
 
-        public string GetLogLineIncorrectRedirectUrl(string url) => Format(section => section?.LogMessages?.IncorrectRedirectUrl, new { url });
+        public string GetLogLineIncorrectRedirectUrl(Uri url) => Format(section => section?.LogMessages?.IncorrectRedirectUrl, new { url });
 
         public string GetLogLineUnexpectedError(string error) => Format(section => section?.LogMessages?.UnexpectedError, new { error });
     }

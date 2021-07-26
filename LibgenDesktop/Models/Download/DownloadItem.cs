@@ -10,7 +10,7 @@ namespace LibgenDesktop.Models.Download
         private CancellationTokenSource cancellationTokenSource;
         private bool disposed;
 
-        public DownloadItem(Guid id, string downloadPageUrl, string downloadDirectory, string fileName, string downloadTransformations, string md5Hash,
+        public DownloadItem(Guid id, Uri downloadPageUrl, string downloadDirectory, string fileName, string downloadTransformations, string md5Hash,
             bool restartSessionOnTimeout)
         {
             cancellationTokenSource = new CancellationTokenSource();
@@ -57,7 +57,7 @@ namespace LibgenDesktop.Models.Download
         }
 
         public Guid Id { get; }
-        public string DownloadPageUrl { get; }
+        public Uri DownloadPageUrl { get; }
         public string DownloadDirectory { get; }
         public List<DownloadItemLogLine> Logs { get; }
         public Dictionary<string, string> Cookies { get; }
@@ -65,8 +65,8 @@ namespace LibgenDesktop.Models.Download
         public string Md5Hash { get; }
         public CancellationToken CancellationToken { get; set; }
         public string FileName { get; set; }
-        public string DirectFileUrl { get; set; }
-        public string Referer { get; set; }
+        public Uri DirectFileUrl { get; set; }
+        public Uri Referer { get; set; }
         public DownloadItemStatus Status { get; set; }
         public bool FileCreated { get; set; }
         public bool FileHandleOpened { get; set; }

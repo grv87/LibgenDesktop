@@ -261,7 +261,7 @@ namespace LibgenDesktop.ViewModels.Tabs
             return MainModel.AppSettings.Mirrors.NonFictionBooksMirrorName;
         }
 
-        protected override string GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration, NonFictionBook book)
+        protected override Uri GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration, NonFictionBook book)
         {
             return UrlGenerator.GetNonFictionDownloadUrl(mirrorConfiguration, book);
         }

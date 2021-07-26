@@ -249,7 +249,7 @@ namespace LibgenDesktop.ViewModels.Tabs
             return MainModel.AppSettings.Mirrors.FictionBooksMirrorName;
         }
 
-        protected override string GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration, FictionBook book)
+        protected override Uri GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration, FictionBook book)
         {
             return UrlGenerator.GetFictionDownloadUrl(mirrorConfiguration, book);
         }

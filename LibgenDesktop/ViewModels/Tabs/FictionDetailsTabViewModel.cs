@@ -52,12 +52,12 @@ namespace LibgenDesktop.ViewModels.Tabs
         protected override string Md5Hash => DetailsItem.Md5Hash;
         protected override bool HasCover => !String.IsNullOrWhiteSpace(DetailsItem.Book.CoverUrl);
 
-        protected override string GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration)
+        protected override Uri GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration)
         {
             return UrlGenerator.GetFictionDownloadUrl(mirrorConfiguration, DetailsItem.Book);
         }
 
-        protected override string GenerateCoverUrl(Mirrors.MirrorConfiguration mirrorConfiguration)
+        protected override Uri GenerateCoverUrl(Mirrors.MirrorConfiguration mirrorConfiguration)
         {
             return UrlGenerator.GetFictionCoverUrl(mirrorConfiguration, DetailsItem.Book);
         }

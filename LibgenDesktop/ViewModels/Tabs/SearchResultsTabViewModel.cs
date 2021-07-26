@@ -303,7 +303,7 @@ namespace LibgenDesktop.ViewModels.Tabs
         protected abstract Task SearchAsync(string searchQuery, CancellationToken cancellationToken);
         protected abstract void OpenDetails(T libgenObject);
         protected abstract string GetDownloadMirrorName();
-        protected abstract string GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration, T libgenObject);
+        protected abstract Uri GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration, T libgenObject);
         protected abstract string GetDownloadTransformations(Mirrors.MirrorConfiguration mirrorConfiguration);
 
         protected virtual void UpdateLocalization(Language newLanguage)
@@ -408,7 +408,7 @@ namespace LibgenDesktop.ViewModels.Tabs
                 {
                     foreach (SearchResultItemViewModel<T> itemToDownload in itemsToDownload)
                     {
-                        Process.Start(GenerateDownloadUrl(mirror, itemToDownload.LibgenObject));
+                        Process.Start(GenerateDownloadUrl(mirror, itemToDownload.LibgenObject).ToString());
                     }
                 }
             }

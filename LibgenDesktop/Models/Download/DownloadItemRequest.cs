@@ -1,8 +1,10 @@
-﻿namespace LibgenDesktop.Models.Download
+﻿using System;
+
+namespace LibgenDesktop.Models.Download
 {
     internal class DownloadItemRequest
     {
-        public string DownloadPageUrl { get; set; }
+        public Uri DownloadPageUrl { get; set; }
         public string FileNameWithoutExtension { get; set; }
         public string FileExtension { get; set; }
         public string Md5Hash { get; set; }

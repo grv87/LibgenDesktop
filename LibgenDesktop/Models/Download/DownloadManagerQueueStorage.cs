@@ -14,11 +14,11 @@ namespace LibgenDesktop.Models.Download
             public string FileName { get; set; }
             public DownloadItemStatus Status { get; set; }
             public string Md5Hash { get; set; }
-            public string DownloadPageUrl { get; set; }
-            public string DirectFileUrl { get; set; }
+            public Uri DownloadPageUrl { get; set; }
+            public Uri DirectFileUrl { get; set; }
             public string DownloadDirectory { get; set; }
             public Dictionary<string, string> Cookies { get; set; }
-            public string Referer { get; set; }
+            public Uri Referer { get; set; }
             public string DownloadTransformations { get; set; }
             public bool FileCreated { get; set; }
             public long? DownloadedFileSize { get; set; }

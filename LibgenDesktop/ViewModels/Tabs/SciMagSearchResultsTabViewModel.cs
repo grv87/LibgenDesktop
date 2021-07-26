@@ -225,7 +225,7 @@ namespace LibgenDesktop.ViewModels.Tabs
             return MainModel.AppSettings.Mirrors.ArticlesMirrorName;
         }
 
-        protected override string GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration, SciMagArticle article)
+        protected override Uri GenerateDownloadUrl(Mirrors.MirrorConfiguration mirrorConfiguration, SciMagArticle article)
         {
             return UrlGenerator.GetSciMagDownloadUrl(mirrorConfiguration, article);
         }
