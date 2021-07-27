@@ -478,6 +478,10 @@ namespace LibgenDesktop.Models.Download
                                         try
                                         {
                                             url = new Uri(transformationResult);
+                                            if (!url.IsAbsoluteUri)
+                                            {
+                                                url = new Uri(referer, url);
+                                            }
                                         }
                                         catch (UriFormatException exception)
                                         {
